@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
 
+import { withTracing } from '../utilities/tracing';
+
 import TodoItem, { TodoItemProps, TodoItemType } from './TodoItem';
 
 import './Todo.css';
@@ -19,12 +21,14 @@ function TodoApp() {
     (e) => {
       if (e.key !== 'Enter') return;
 
-      const newTodos = [
-        { title: currentTodo },
-        ...todos
-      ]
-      setTodos(newTodos);
-      setTodo('');
+      withTracing('create_todo', async () => {
+        const newTodos = [
+          { title: currentTodo },
+          ...todos
+        ];
+        await setTodos(newTodos);
+        await setTodo('');
+      });
     },
     [todos, setTodos, currentTodo, setTodo]
   )
@@ -53,7 +57,7 @@ function TodoApp() {
         {todos.map((todo, index) => {
           return (
             <TodoItem
-              key={todo.title}
+              key={`${todo.title}-${index}`}
               index={index}
               submitTodo={submitTodo}
               {...todo} />

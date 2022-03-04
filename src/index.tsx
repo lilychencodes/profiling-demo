@@ -4,9 +4,13 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import TraceProvider from './trace-provider';
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <TraceProvider>
+      <App />
+    </TraceProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
