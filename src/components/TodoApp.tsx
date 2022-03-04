@@ -2,8 +2,10 @@ import React, { useState, useCallback } from 'react';
 
 import TodoItem, { TodoItemProps, TodoItemType } from './TodoItem';
 
+import './Todo.css';
+
 function TodoApp() {
-  const [todos, setTodos] = useState<TodoItemType[]>([]);
+  const [todos, setTodos] = useState<TodoItemType[]>([{ title: 'Default Todo #1' }, { title: 'Default Todo #2'}]);
   const [currentTodo, setTodo] = useState<string>('');
 
   const editTodo = useCallback(
@@ -40,7 +42,7 @@ function TodoApp() {
   )
 
   return (
-    <div className="todo-app">
+    <div className="todo-app flex-column-center">
       <div>
         <input
           value={currentTodo}

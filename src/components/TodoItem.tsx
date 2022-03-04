@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
 
+import './Todo.css';
+
 export type TodoItemProps = {
   title: string;
   index: number;

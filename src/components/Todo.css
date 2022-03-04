@@ -1,0 +1,11 @@
+.todo-app {
+  margin-top: 40px;
+}
+
+.todo-item {
+  width: 400px;
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: 1px solid #eee;
+  margin: 10px 0;
+}
