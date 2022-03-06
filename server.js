@@ -33,12 +33,12 @@ app.post('/send-trace', (req, res) => {
   const event = honeycomb.newEvent();
   const payload = {
     name,
-    startTime: startTime[0], // unix timestamp (seconds since epoch)
-    endTime: endTime[0], // unix timestamp (seconds since epoch)
     duration_ms: duration[1] / 1000 / 1000, // convert from nanoseconds to milliseconds
-    spanId,
+    endTime: endTime[0], // unix timestamp (seconds since epoch)
     traceId,
-    parentSpanId,
+    id: spanId,
+    parentId: parentSpanId,
+    timestamp: startTime[0], // unix timestamp (seconds since epoch)
   };
   console.log('payload:', payload);
 

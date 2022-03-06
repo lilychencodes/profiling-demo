@@ -1,6 +1,6 @@
-import api from '@opentelemetry/api';
+import opentelemetry from '@opentelemetry/api';
 
-function reportSpan(span) {
+export function reportSpan(span) {
 
   const { _spanContext, _ended, duration, startTime, endTime, name, parentSpanId } = span;
 
@@ -14,6 +14,8 @@ function reportSpan(span) {
     parentSpanId,
   };
 
+  console.log('report span:', payload);
+
   fetch('./send-trace', {
     method: 'POST',
     headers: {
@@ -23,9 +25,16 @@ function reportSpan(span) {
   });
 }
 
-export async function withTracing(name, cb) {
-  const tracer = api.trace.getTracer('profiling-demo');
-  const span = tracer.startSpan(name);
+export async function withTracing(name, cb, parentSpan, report) {
+  const tracer = opentelemetry.trace.getTracer('profiling-demo');
+  let span;
+
+  if (parentSpan) {
+    const ctx = opentelemetry.trace.setSpan(opentelemetry.context.active(), parentSpan);
+    span = tracer.startSpan(name, undefined, ctx);
+  } else {
+    span = tracer.startSpan(name);
+  }
 
   await cb();
 

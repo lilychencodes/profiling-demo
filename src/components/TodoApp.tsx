@@ -1,36 +1,63 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import opentelemetry from '@opentelemetry/api';
 
-import { withTracing } from '../utilities/tracing';
+import { withTracing, reportSpan } from '../utilities/tracing';
 
 import TodoItem, { TodoItemProps, TodoItemType } from './TodoItem';
+import TodoInput from './TodoInput';
 
 import './Todo.css';
 
+const PLACEHOLDER = [
+  { title: 'Feed cat' },
+  { title: 'Take a walk'},
+  { title: 'Call mom'},
+  { title: 'Finish math homework'},
+  { title: 'Buy food'},
+];
+
+declare global {
+  interface Window {
+    Profiler: any;
+  }
+}
+
+const Profiler = window.Profiler;
+
+const tracer = opentelemetry.trace.getTracer('profiling-demo');
+
 function TodoApp() {
-  const [todos, setTodos] = useState<TodoItemType[]>([{ title: 'Default Todo #1' }, { title: 'Default Todo #2'}]);
-  const [currentTodo, setTodo] = useState<string>('');
+  const [todos, setTodos] = useState<TodoItemType[]>(PLACEHOLDER);
+  const [parentSpan, setParentSpan] = useState<any>(null);
 
-  const editTodo = useCallback(
-    (e) => {
-      setTodo(e.target.value);
+  const createTodo = useCallback(
+    async (todo) => {
+      let profiler;
+      if (Profiler) {
+        profiler = new Profiler({ sampleInterval: 10, maxBufferSize: 10000 });
+      }
+      const rootSpan = tracer.startSpan('TodoApp-Profiling');
+      await withTracing(
+        'create_todo',
+        async () => {
+          const newTodos = [
+            { title: todo },
+            ...todos
+          ];
+          await setTodos(newTodos);
+        },
+        rootSpan,
+      );
+      // this should be after withTracing because we want to run the useEffect hook after callback finished.
+      await setParentSpan(rootSpan);
+
+      if (!profiler) return;
+
+      const profileTrace = await profiler.stop();
+
+      reportProfilerTrace(profileTrace);
     },
-    [setTodo],
-  );
-
-  const maybeSubmit = useCallback(
-    (e) => {
-      if (e.key !== 'Enter') return;
-
-      withTracing('create_todo', async () => {
-        const newTodos = [
-          { title: currentTodo },
-          ...todos
-        ];
-        await setTodos(newTodos);
-        await setTodo('');
-      });
-    },
-    [todos, setTodos, currentTodo, setTodo]
+    [todos, setTodos, setParentSpan]
   )
 
   const submitTodo = useCallback(
@@ -45,14 +72,17 @@ function TodoApp() {
     [setTodos, todos]
   )
 
+  useEffect(() => {
+    if (parentSpan) {
+      parentSpan.end();
+      reportSpan(parentSpan);
+    }
+  }, [parentSpan]);
+
   return (
     <div className="todo-app flex-column-center">
-      <div>
-        <input
-          value={currentTodo}
-          onChange={editTodo}
-          onKeyPress={maybeSubmit} />
-      </div>
+      <div className="title">Lily's Todos</div>
+      <TodoInput createTodo={createTodo} />
       <div>
         {todos.map((todo, index) => {
           return (
@@ -66,6 +96,10 @@ function TodoApp() {
       </div>
     </div>
   );
+}
+
+function reportProfilerTrace(trace: any) {
+  console.log('profile Trace:', trace);
 }
 
 export default TodoApp;

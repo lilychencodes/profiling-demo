@@ -8,4 +8,9 @@
   border-radius: 5px;
   border: 1px solid #eee;
   margin: 10px 0;
+  box-shadow: 2px 2px 2px #eee;
+}
+
+.title {
+  margin: 20px 0;
 }
