@@ -42,3 +42,8 @@ export async function withTracing(name, cb, parentSpan, report) {
 
   reportSpan(span);
 }
+
+export function getTracer() {
+  const tracer = opentelemetry.trace.getTracer('profiling-demo');
+  return tracer;
+}

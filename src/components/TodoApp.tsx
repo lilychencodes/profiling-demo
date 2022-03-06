@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import opentelemetry from '@opentelemetry/api';
 
-import { withTracing, reportSpan } from '../utilities/tracing';
+import { withTracing, reportSpan, getTracer } from '../utilities/tracing';
 
 import TodoItem, { TodoItemProps, TodoItemType } from './TodoItem';
 import TodoInput from './TodoInput';
@@ -24,7 +23,7 @@ declare global {
 
 const Profiler = window.Profiler;
 
-const tracer = opentelemetry.trace.getTracer('profiling-demo');
+const tracer = getTracer();
 
 function TodoApp() {
   const [todos, setTodos] = useState<TodoItemType[]>(PLACEHOLDER);
@@ -38,7 +37,7 @@ function TodoApp() {
       }
       const rootSpan = tracer.startSpan('TodoApp-Profiling');
       await withTracing(
-        'create_todo',
+        `createTodo: ${todo}`,
         async () => {
           const newTodos = [
             { title: todo },
@@ -90,6 +89,7 @@ function TodoApp() {
               key={`${todo.title}-${index}`}
               index={index}
               submitTodo={submitTodo}
+              rootSpan={parentSpan}
               {...todo} />
           )
         })}
