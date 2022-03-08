@@ -7,5 +7,4 @@ The article for this repo can be found on [Medium](https://medium.com/@lilychenc
 ## Example trace of app performance based on user interaction
 Here, we're tracing the rendering of the main TodoApp and its children the TodoItems when creating a new todo.
 
-<img width="1032" alt="image" src="https://user-images.githubusercontent.com/9043536/157099434-cd9bb872-165e-4f69-8901-851b06b85803.png">
-
+<img width="1034" alt="image" src="https://user-images.githubusercontent.com/9043536/157320681-a9b5f57b-0d6a-495d-a760-5ef1b2157a50.png">
