@@ -33,7 +33,7 @@ function TodoApp() {
     async (todo) => {
       let profiler;
       if (Profiler) {
-        profiler = new Profiler({ sampleInterval: 10, maxBufferSize: 10000 });
+        profiler = new Profiler({ sampleInterval: 10, maxBufferSize: 100 });
       }
       const rootSpan = tracer.startSpan('TodoApp-Profiling');
       await withTracing(

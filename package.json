@@ -16,6 +16,7 @@
     "@types/node": "^16.11.26",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.13",
+    "axios": "^0.26.0",
     "express": "^4.17.3",
     "libhoney": "^3.0.0",
     "react": "^17.0.2",

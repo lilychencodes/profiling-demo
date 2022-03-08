@@ -1,13 +1,12 @@
 const express = require('express');
-const Libhoney = require('libhoney');
-
+const axios = require('axios')
 const { HONEYCOMB_API_KEY } = require('./secrets');
 
-const app = express();
-const port = process.env.PORT || 5000;
+/** NOTE: I couldn't figure out how to handle timestamp with Libhoney.
+This manual sending of events makes sure the start of the trace displayed in Honeycomb
+is the actual timestamp that trace started.
 
-app.use(express.json());
-app.use(express.urlencoded()); // Parse URL-encoded bodies
+const Libhoney = require('libhoney');
 
 const honeycomb = new Libhoney({
   writeKey: HONEYCOMB_API_KEY,
@@ -18,6 +17,16 @@ const honeycomb = new Libhoney({
     });
   }
 });
+
+const builder = honeycomb.newBuilder({ built: true });
+
+*/
+
+const app = express();
+const port = process.env.PORT || 5000;
+
+app.use(express.json());
+app.use(express.urlencoded()); // Parse URL-encoded bodies
 
 app.post('/send-trace', (req, res) => {
   const {
@@ -30,7 +39,6 @@ app.post('/send-trace', (req, res) => {
     traceId,
   } = req.body;
 
-  const event = honeycomb.newEvent();
   const payload = {
     name,
     duration_ms: duration[1] / 1000 / 1000, // convert from nanoseconds to milliseconds
@@ -42,8 +50,20 @@ app.post('/send-trace', (req, res) => {
   };
   console.log('payload:', payload);
 
-  event.add(payload);
-  event.send();
+  axios
+  .post('https://api.honeycomb.io/1/events/profiling-demo', payload, {
+    headers: {
+      'X-Honeycomb-Team': HONEYCOMB_API_KEY,
+      'X-Honeycomb-Event-Time': startTime[0],
+      'Content-Type': 'application/json',
+    }
+  })
+  .then(res => {
+    console.log(`statusCode: ${res.status}`)
+  })
+  .catch(error => {
+    console.error(error)
+  })
 
   res.send({ status: 'done' });
 });

@@ -45,7 +45,6 @@ function TodoItem({ title, index, submitTodo, rootSpan }: TodoItemProps) {
 
   useEffect(() => {
     if (todoItemSpan) {
-      console.log('Todo item rendered!', title);
       todoItemSpan.end();
       reportSpan(todoItemSpan);
     }
